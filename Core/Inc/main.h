@@ -59,6 +59,24 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define MUX_Pin GPIO_PIN_12
 #define MUX_GPIO_Port GPIOB
+#define KEY_DOWN_Pin GPIO_PIN_13
+#define KEY_DOWN_GPIO_Port GPIOB
+#define KEY_5_Pin GPIO_PIN_14
+#define KEY_5_GPIO_Port GPIOB
+#define KEY_LEFT_Pin GPIO_PIN_15
+#define KEY_LEFT_GPIO_Port GPIOB
+#define KEY_UP_Pin GPIO_PIN_8
+#define KEY_UP_GPIO_Port GPIOA
+#define KEY_2_Pin GPIO_PIN_15
+#define KEY_2_GPIO_Port GPIOA
+#define KEY_3_Pin GPIO_PIN_3
+#define KEY_3_GPIO_Port GPIOB
+#define KEY_1_Pin GPIO_PIN_4
+#define KEY_1_GPIO_Port GPIOB
+#define KEY_4_Pin GPIO_PIN_5
+#define KEY_4_GPIO_Port GPIOB
+#define KEY_RIGHT_Pin GPIO_PIN_6
+#define KEY_RIGHT_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

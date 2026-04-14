@@ -47,6 +47,8 @@
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
+I2C_HandleTypeDef hi2c1;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -56,6 +58,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -129,7 +132,16 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
   ringbuf_push(&g_adc_ringbufs[9+6], adc_buf[7]/8);
   ringbuf_push(&g_adc_ringbufs[9+7], adc_buf[8]/8);
 }
-
+uint16_t keys;
+//AnalogRawValue advanced_key_read_raw(AdvancedKey *advanced_key)
+//{
+//  if (advanced_key->key.id == 0)
+//  {
+//    return keys;
+//  }
+//  
+//    return ringbuf_avg(&g_adc_ringbufs[g_analog_map[advanced_key->key.id]]);
+//}
 /* USER CODE END 0 */
 
 /**
@@ -163,9 +175,11 @@ int main(void)
   MX_GPIO_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   HAL_ADCEx_Calibration_Start(&hadc1);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, DMA_LENGTH*2);
+  //HAL_GPIO_WritePin(KEY_BUS_GPIO_Port, KEY_BUS_Pin, GPIO_PIN_SET);
   keyboard_init();
   usb_init(0, USB_BASE);
   analog_calibrate();
@@ -175,6 +189,12 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   { 
+    uint16_t temp_keys = 0;
+    temp_keys |= HAL_GPIO_ReadPin(KEY_1_GPIO_Port, KEY_1_Pin) ? BIT(0) : 0;
+    temp_keys |= HAL_GPIO_ReadPin(KEY_2_GPIO_Port, KEY_2_Pin) ? BIT(1) : 0;
+    temp_keys |= HAL_GPIO_ReadPin(KEY_3_GPIO_Port, KEY_3_Pin) ? BIT(2) : 0;
+    temp_keys |= HAL_GPIO_ReadPin(KEY_4_GPIO_Port, KEY_4_Pin) ? BIT(3) : 0;
+    keys = temp_keys;
     keyboard_task();
     keyboard_process();
     /* USER CODE END WHILE */
@@ -351,6 +371,40 @@ static void MX_ADC1_Init(void)
 }
 
 /**
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_I2C1_Init(void)
+{
+
+  /* USER CODE BEGIN I2C1_Init 0 */
+
+  /* USER CODE END I2C1_Init 0 */
+
+  /* USER CODE BEGIN I2C1_Init 1 */
+
+  /* USER CODE END I2C1_Init 1 */
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN I2C1_Init 2 */
+
+  /* USER CODE END I2C1_Init 2 */
+
+}
+
+/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -384,14 +438,28 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(MUX_GPIO_Port, MUX_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, MUX_Pin|KEY_1_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : MUX_Pin */
-  GPIO_InitStruct.Pin = MUX_Pin;
+  /*Configure GPIO pins : PB10 KEY_DOWN_Pin KEY_5_Pin KEY_LEFT_Pin
+                           KEY_3_Pin KEY_4_Pin KEY_RIGHT_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_10|KEY_DOWN_Pin|KEY_5_Pin|KEY_LEFT_Pin
+                          |KEY_3_Pin|KEY_4_Pin|KEY_RIGHT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : MUX_Pin KEY_1_Pin */
+  GPIO_InitStruct.Pin = MUX_Pin|KEY_1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(MUX_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : KEY_UP_Pin KEY_2_Pin */
+  GPIO_InitStruct.Pin = KEY_UP_Pin|KEY_2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

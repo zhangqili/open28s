@@ -1,0 +1,204 @@
+/*
+ * Copyright (c) 2024 Zhangqi Li (@zhangqili)
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+#ifndef KEYBOARD_CONF_H_
+#define KEYBOARD_CONF_H_
+
+/********************/
+/* Keyboard General */
+/********************/
+#define LAYER_NUM               3
+#define ADVANCED_KEY_NUM        17
+#define KEY_NUM                 9
+#define CONTINUOUS_DEBUG
+#define DEBUG_INTERVAL 0
+#define DYNAMICKEY_ENABLE
+#define MACRO_ENABLE
+#define SUSPEND_ENABLE
+#define OPTIMIZE_KEY_BITMAP
+#define OPTIMIZE_MOVING_AVERAGE_FOR_RINGBUF
+#define DEBOUNCE_PRESS          0
+#define DEBOUNCE_PRESS_EAGER    1
+#define DEBOUNCE_RELEASE        0
+#define DEBOUNCE_RELEASE_EAGER  1
+#define LUT_LENGTH              8192
+
+/********************/
+/* Keyboard Default */
+/********************/
+#define DEFAULT_ADVANCED_KEY_MODE   ADVANCED_KEY_ANALOG_NORMAL_MODE
+#define DEFAULT_CALIBRATION_MODE    ADVANCED_KEY_AUTO_CALIBRATION_UNDEFINED
+#define DEFAULT_TRIGGER_DISTANCE    0.08
+#define DEFAULT_RELEASE_DISTANCE    0.08
+#define DEFAULT_UPPER_DEADZONE      0.01
+#define DEFAULT_LOWER_DEADZONE      0.2
+#define DEFAULT_ACTIVATION_VALUE    0.5
+#define DEFAULT_DEACTIVATION_VALUE  0.49
+#define DEFAULT_ESTIMATED_RANGE     500
+
+/**********/
+/* Analog */
+/**********/
+#define RING_BUF_LEN            2
+#define CALIBRATION_LPF_ENABLE
+
+/***********/
+/* Storage */
+/***********/
+//#define STORAGE_ENABLE
+//#define LFS_ENABLE
+//#define LFS_READ_SIZE       16
+//#define LFS_PROG_SIZE       16
+//#define LFS_BLOCK_SIZE      4096
+//#define LFS_BLOCK_COUNT     4096
+//#define LFS_CACHE_SIZE      16
+//#define LFS_LOOKAHEAD_SIZE  16
+//#define LFS_BLOCK_CYCLES    500
+//#define LFS_BUFFER_SIZE     16
+
+/*******/
+/* RGB */
+/*******/
+//#define RGB_ENABLE
+//#define RGB_NUM                 (ADVANCED_KEY_NUM)
+//#define RGB_MAX_DURATION        2000
+//#define FADING_DISTANCE         8.0f
+//#define JELLY_DISTANCE          5.0f
+//#define BUBBLE_DISTANCE         2.5f
+//#define PORT_LOCATION           {1, -0.5}
+//#define RGB_FLASH_MAX_DURATION  1000
+//#define RGB_FLASH_RIPPLE_SPEED  30
+//#define RGB_DEFAULT_MODE        RGB_MODE_LINEAR
+//#define RGB_DEFAULT_SPEED       20
+//#define RGB_DEFAULT_COLOR_HSV   {273, 78, 99}
+//#define RGB_LEFT                -0.5f
+//#define RGB_TOP                 -0.5f
+//#define RGB_RIGHT               14.5f
+//#define RGB_BOTTOM              4.5f
+//#define RGB_USE_LIST_EXPERIMENTAL
+//#define RGB_GAMMA_ENABLE
+//#define RGB_GAMMA               2.2f
+//#define RGB_CUSTOM_INVERSE_MAPPING
+//#define RGB_BASE_MODE_USE_RAINBOW           1
+//#define RGB_BASE_MODE_USE_WAVE              1
+//#define RGB_MODE_USE_STATIC                 1
+//#define RGB_MODE_USE_CYCLE                  1
+//#define RGB_MODE_USE_LINEAR                 1
+//#define RGB_MODE_USE_TRIGGER                1
+//#define RGB_MODE_USE_STRING                 1
+//#define RGB_MODE_USE_FADING_STRING          1
+//#define RGB_MODE_USE_DIAMOND_RIPPLE         1
+//#define RGB_MODE_USE_FADING_DIAMOND_RIPPLE  1
+//#define RGB_MODE_USE_JELLY                  1
+//#define RGB_MODE_USE_BUBBLE                 1
+//#define RGB_ARGUMENT_BUFFER_LENGTH          32
+//#define RGB_ARGUMENT_LIST_BUFFER_LENGTH     256
+/************/
+/* Joystick */
+/************/
+#define JOYSTICK_BUTTON_COUNT 32
+#define JOYSTICK_AXIS_COUNT 6
+
+/********/
+/* MIDI */
+/********/
+#define MIDI_REF_VELOCITY 0.01
+
+/**********/
+/* Filter */
+/**********/
+//#define FILTER_ENABLE
+#define FILTER_HYSTERESIS_ENABLE
+#define FILTER_HYSTERESIS               2
+#define FILTER_TYPE FILTER_TYPE_KALMAN
+#define FILTER_DOMAIN FILTER_DOMAIN_RAW
+
+/**********/
+/* Record */
+/**********/
+//#define STATIC_RECORD
+//#define ANALOG_HISTORY_ENABLE
+//#define KPS_ENABLE
+//#define KPS_HISTORY_ENABLE
+//#define BIT_STREAM_ENABLE
+//#define COUNTER_ENABLE
+
+#define KPS_HISTORY_LENGTH      65
+#define BIT_STREAM_LENGTH       128
+#define ANALOG_HISTORY_LENGTH   129
+#define RECORD_MAX_KEY_NUM      8
+#define KPS_REFRESH_RATE        144
+
+/*******/
+/* USB */
+/*******/
+#define USB_POLLING_INTERVAL_MS 1
+#define FIXED_CONTROL_ENDPOINT_SIZE 0x40
+#define VENDOR_ID 0xFEED
+#define PRODUCT_ID 22319
+#define DEVICE_VER 2
+#define FIXED_NUM_CONFIGURATIONS 1
+#define USB_ENDPOINTS_ARE_REORDERABLE
+
+#define MANUFACTURER "dwdwdw5163&Lzq12345"
+#define PRODUCT "Oholeo Keyboard"
+#define SERIAL_NUMBER "2022123456"
+
+#define RAW_ENABLE
+//#define KEYBOARD_SHARED_EP
+#define SHARED_EP_ENABLE
+#define NKRO_ENABLE
+#define MOUSE_ENABLE
+#define MOUSE_SHARED_EP
+#define EXTRAKEY_ENABLE
+#define JOYSTICK_ENABLE
+#define JOYSTICK_SHARED_EP
+//#define DIGITIZER_ENABLE
+//#define DIGITIZER_SHARED_EP
+//#define PROGRAMMABLE_BUTTON_ENABLE
+//#define MIDI_ENABLE
+//#define MIDI_STREAM_EPSIZE 16
+#define GAMEPAD_ENABLE
+//#define LIGHTING_ENABLE
+
+/*********/
+/* Nexus */
+/*********/
+//#define NEXUS_ENABLE   1
+//#define NEXUS_SLAVE_CONFIG {{17*0,17},{17*1,17},{17*2,17},{17*3,17}}
+//#define NEXUS_SLAVE_NUM 4
+//#define NEXUS_IS_SLAVE 1
+//#define NEXUS_VALUE_MAX        4096
+
+/**********/
+/* Script */
+/**********/
+//#define SCRIPT_ENABLE
+//#define MQJS_MINIMAL
+
+/****************/
+/* User Defines */
+/****************/
+#define PULSE 1000
+#define PULSE_LEN_MS 40
+
+enum USER_KEYCODE {
+    USER_BEEP = 0,
+    USER_EM = 1,
+    USER_SNAKE_LAUNCH = 0x10,
+    USER_SNAKE_QUIT = 0x11,
+    USER_SNAKE_PAUSE = 0x12,
+    USER_SNAKE_SPEED_UP = 0x13,
+    USER_SNAKE_SPEED_DOWN = 0x14,
+    USER_SNAKE_RESTART = 0x15,
+    USER_SNAKE_LEFT = 0x18,
+    USER_SNAKE_UP = 0x19,
+    USER_SNAKE_RIGHT = 0x1A,
+    USER_SNAKE_DOWN = 0x1B,
+    USER_TOGGLE_LOW_LATENCY_MODE = 0x20,
+    USER_RESET = 0xFF,
+};
+
+#endif /* KEYBOARD_CONF_H_ */

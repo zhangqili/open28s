@@ -21,7 +21,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "usbd_core.h"
+#include "keyboard.h"
+#include "usbd_user.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -36,17 +37,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#if !defined(HAL_PCD_MODULE_ENABLED)
-#error please define HAL_PCD_MODULE_ENABLED in stm32xxx_hal_conf.h
-#endif
 
-#ifndef CONFIG_USBDEV_FSDEV_PMA_ACCESS
-#error "please define CONFIG_USBDEV_FSDEV_PMA_ACCESS in usb_config.h"
-#endif
-
-#if CONFIG_USBDEV_FSDEV_PMA_ACCESS != PMA_ACCESS
-#error "CONFIG_USBDEV_FSDEV_PMA_ACCESS must be equal PMA_ACCESS"
-#endif
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -71,7 +62,7 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
   HAL_NVIC_SetPriority(USB_LP_CAN1_RX0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
 }
-#include "../demo/hid_keyboard_template.c"
+
 /* USER CODE END 0 */
 
 /**
@@ -104,13 +95,16 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   /* USER CODE BEGIN 2 */
-  hid_keyboard_init(0, USB_BASE);
+  keyboard_init();
+  usb_init(0, USB_BASE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    keyboard_task();
+    keyboard_process();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

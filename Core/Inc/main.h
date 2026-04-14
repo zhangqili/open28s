@@ -57,6 +57,8 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define MUX_Pin GPIO_PIN_12
+#define MUX_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "keyboard.h"
+#include "analog.h"
 #include "usbd_user.h"
 /* USER CODE END Includes */
 
@@ -32,7 +33,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define ADC_BUFFER_LENGTH 9
+#define ADC_CHANNEL_NUM 9
+#define DMA_LENGTH (ADC_BUFFER_LENGTH*ADC_CHANNEL_NUM)
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -41,6 +44,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
 /* USER CODE BEGIN PV */
 
@@ -49,6 +54,8 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
+static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -61,6 +68,66 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef *hpcd)
   __HAL_RCC_USB_CLK_ENABLE();
   HAL_NVIC_SetPriority(USB_LP_CAN1_RX0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
+}
+
+uint32_t adc_buffer[2][ADC_BUFFER_LENGTH*ADC_CHANNEL_NUM];
+uint32_t debug;
+uint32_t debug1;
+uint32_t next_tick;
+
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef* hadc)
+{
+  HAL_GPIO_WritePin(MUX_GPIO_Port, MUX_Pin, GPIO_PIN_SET);
+  uint32_t adc_buf[ADC_CHANNEL_NUM] = {0};
+  for (int i = 1; i < ADC_BUFFER_LENGTH; i++)
+  {
+    adc_buf[0] += adc_buffer[0][i*ADC_CHANNEL_NUM+0];
+    adc_buf[1] += adc_buffer[0][i*ADC_CHANNEL_NUM+1];
+    adc_buf[2] += adc_buffer[0][i*ADC_CHANNEL_NUM+2];
+    adc_buf[3] += adc_buffer[0][i*ADC_CHANNEL_NUM+3];
+    adc_buf[4] += adc_buffer[0][i*ADC_CHANNEL_NUM+4];
+    adc_buf[5] += adc_buffer[0][i*ADC_CHANNEL_NUM+5];
+    adc_buf[6] += adc_buffer[0][i*ADC_CHANNEL_NUM+6];
+    adc_buf[7] += adc_buffer[0][i*ADC_CHANNEL_NUM+7];
+    adc_buf[8] += adc_buffer[0][i*ADC_CHANNEL_NUM+8];
+  }
+  ringbuf_push(&g_adc_ringbufs[0], adc_buf[0]/8);
+  ringbuf_push(&g_adc_ringbufs[1], adc_buf[1]/8);
+  ringbuf_push(&g_adc_ringbufs[2], adc_buf[2]/8);
+  ringbuf_push(&g_adc_ringbufs[3], adc_buf[3]/8);
+  ringbuf_push(&g_adc_ringbufs[4], adc_buf[4]/8);
+  ringbuf_push(&g_adc_ringbufs[5], adc_buf[5]/8);
+  ringbuf_push(&g_adc_ringbufs[6], adc_buf[6]/8);
+  ringbuf_push(&g_adc_ringbufs[7], adc_buf[7]/8);
+  ringbuf_push(&g_adc_ringbufs[8], adc_buf[8]/8);
+  
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
+{
+  HAL_GPIO_WritePin(MUX_GPIO_Port, MUX_Pin, GPIO_PIN_RESET);
+  uint32_t adc_buf[ADC_CHANNEL_NUM] = {0};
+  for (int i = 1; i < ADC_BUFFER_LENGTH; i++)
+  {
+    adc_buf[0] += adc_buffer[1][i*ADC_CHANNEL_NUM+0];
+    adc_buf[1] += adc_buffer[1][i*ADC_CHANNEL_NUM+1];
+    adc_buf[2] += adc_buffer[1][i*ADC_CHANNEL_NUM+2];
+    adc_buf[3] += adc_buffer[1][i*ADC_CHANNEL_NUM+3];
+    adc_buf[4] += adc_buffer[1][i*ADC_CHANNEL_NUM+4];
+    adc_buf[5] += adc_buffer[1][i*ADC_CHANNEL_NUM+5];
+    adc_buf[6] += adc_buffer[1][i*ADC_CHANNEL_NUM+6];
+    adc_buf[7] += adc_buffer[1][i*ADC_CHANNEL_NUM+7];
+    adc_buf[8] += adc_buffer[1][i*ADC_CHANNEL_NUM+8];
+  }
+  ringbuf_push(&g_adc_ringbufs[9+0], adc_buf[0]/8);
+  ringbuf_push(&g_adc_ringbufs[9+1], adc_buf[1]/8);
+  //ringbuf_push(&g_adc_ringbufs[9+2], adc_buf[2]/8);
+  ringbuf_push(&g_adc_ringbufs[9+2], adc_buf[3]/8);
+  ringbuf_push(&g_adc_ringbufs[9+3], adc_buf[4]/8);
+  ringbuf_push(&g_adc_ringbufs[9+4], adc_buf[5]/8);
+  ringbuf_push(&g_adc_ringbufs[9+5], adc_buf[6]/8);
+  ringbuf_push(&g_adc_ringbufs[9+6], adc_buf[7]/8);
+  ringbuf_push(&g_adc_ringbufs[9+7], adc_buf[8]/8);
 }
 
 /* USER CODE END 0 */
@@ -94,15 +161,20 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
+  HAL_ADCEx_Calibration_Start(&hadc1);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, DMA_LENGTH*2);
   keyboard_init();
   usb_init(0, USB_BASE);
+  analog_calibrate();
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-  {
+  { 
     keyboard_task();
     keyboard_process();
     /* USER CODE END WHILE */
@@ -150,12 +222,148 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_USB;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief ADC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC1_Init(void)
+{
+
+  /* USER CODE BEGIN ADC1_Init 0 */
+
+  /* USER CODE END ADC1_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC1_Init 1 */
+
+  /* USER CODE END ADC1_Init 1 */
+
+  /** Common config
+  */
+  hadc1.Instance = ADC1;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.NbrOfConversion = 9;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_0;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES_5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_2;
+  sConfig.Rank = ADC_REGULAR_RANK_3;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_3;
+  sConfig.Rank = ADC_REGULAR_RANK_4;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_4;
+  sConfig.Rank = ADC_REGULAR_RANK_5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_5;
+  sConfig.Rank = ADC_REGULAR_RANK_6;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_7;
+  sConfig.Rank = ADC_REGULAR_RANK_7;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_8;
+  sConfig.Rank = ADC_REGULAR_RANK_8;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_9;
+  sConfig.Rank = ADC_REGULAR_RANK_9;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel1_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+
 }
 
 /**
@@ -165,6 +373,7 @@ void SystemClock_Config(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
   /* USER CODE BEGIN MX_GPIO_Init_1 */
 
   /* USER CODE END MX_GPIO_Init_1 */
@@ -172,6 +381,17 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(MUX_GPIO_Port, MUX_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : MUX_Pin */
+  GPIO_InitStruct.Pin = MUX_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(MUX_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

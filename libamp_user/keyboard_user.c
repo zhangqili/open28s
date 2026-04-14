@@ -9,38 +9,25 @@
 #include "string.h"
 #include "usbd_user.h"
 #include "analog.h"
-#include "snake.h"
 #include "qmk_midi.h"
-#include "sfud.h"
-#include "ws2812.h"
 #include "gamepad.h"
 
 const Keycode g_default_keymap[LAYER_NUM][TOTAL_KEY_NUM] = {
     {
         KEY_ESC/*0*/,           KEY_1/*1*/,     KEY_2/*2*/,     KEY_3/*3*/,     KEY_4/*4*/,     KEY_5/*5*/,     KEY_6/*6*/,     KEY_7/*7*/,     KEY_8/*8*/,     KEY_9/*9*/,     KEY_0/*10*/,        KEY_MINUS/*11*/,        KEY_EQUAL/*12*/,        KEY_BACKSPACE/*13*/,
-        KEY_TAB/*14*/,          KEY_Q/*15*/,    KEY_W/*16*/,    KEY_E/*17*/,    KEY_R/*18*/,    KEY_T/*19*/,    KEY_Y/*20*/,    KEY_U/*21*/,    KEY_I/*22*/,    KEY_O/*23*/,    KEY_P/*24*/,        KEY_LEFT_BRACE/*25*/,   KEY_RIGHT_BRACE/*26*/,      },
+        KEY_TAB/*14*/,          KEY_Q/*15*/,    KEY_W/*16*/,    KEY_E/*17*/,    KEY_R/*18*/,    KEY_T/*19*/,    KEY_Y/*20*/,    KEY_U/*21*/,    KEY_I/*22*/,    KEY_O/*23*/,    KEY_P/*24*/,        KEY_LEFT_BRACE/*25*/,   },
     {
         KEY_GRAVE,              KEY_F1,         KEY_F2,         KEY_F3,         KEY_F4,         KEY_F5,         KEY_F6,         KEY_F7,         KEY_F8,         KEY_F9,         KEY_F10,            KEY_F11,            KEY_F12,                KEY_TRANSPARENT,
-        KEY_TRANSPARENT,        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_PRINT_SCREEN,   KEY_SCROLL_LOCK,            },
+        KEY_TRANSPARENT,        KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,    KEY_PRINT_SCREEN,           },
     {
         KEYBOARD_OPERATION | (KEYBOARD_BOOTLOADER << 8),  KEYBOARD_OPERATION | (KEYBOARD_PROFILE0 << 8),                    KEYBOARD_OPERATION | (KEYBOARD_PROFILE1 << 8),KEYBOARD_OPERATION | (KEYBOARD_PROFILE2 << 8),                    KEYBOARD_OPERATION | (KEYBOARD_PROFILE3 << 8),      KEY_TRANSPARENT,                                                KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEYBOARD_OPERATION | (KEYBOARD_RGB_BRIGHTNESS_DOWN << 8),    KEYBOARD_OPERATION | (KEYBOARD_RGB_BRIGHTNESS_UP << 8),    KEYBOARD_OPERATION | (KEYBOARD_RESET_TO_DEFAULT << 8),
-        KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                                                  KEY_TRANSPARENT,                              KEY_TRANSPARENT,                                                  KEYBOARD_OPERATION | (KEYBOARD_REBOOT << 8),        KEYBOARD_CONFIG(KEYBOARD_CONFIG_NKRO, KEYBOARD_CONFIG_TOGGLE),  KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEY_TRANSPARENT,    KEY_TRANSPARENT,        }
+        KEY_TRANSPARENT,                                  KEY_TRANSPARENT,                                                  KEY_TRANSPARENT,                              KEY_TRANSPARENT,                                                  KEYBOARD_OPERATION | (KEYBOARD_REBOOT << 8),        KEYBOARD_CONFIG(KEYBOARD_CONFIG_NKRO, KEYBOARD_CONFIG_TOGGLE),  KEY_TRANSPARENT,               KEY_TRANSPARENT,KEY_TRANSPARENT,KEY_TRANSPARENT,                                KEY_TRANSPARENT,    KEY_TRANSPARENT,}
 
 };
 
-
-#define L_UNIT_TO_UM(x,y) {UNIT_TO_UM(x), UNIT_TO_UM(y)}
-const RGBLocation g_rgb_locations[RGB_NUM]={L_UNIT_TO_UM(0.625,4.000), L_UNIT_TO_UM(1.875,4.000), L_UNIT_TO_UM(3.125,4.000), L_UNIT_TO_UM(6.875,4.000), L_UNIT_TO_UM(10.500,4.000), L_UNIT_TO_UM(11.500,4.000), L_UNIT_TO_UM(12.500,4.000), L_UNIT_TO_UM(13.500,4.000), L_UNIT_TO_UM(14.500,4.000), 
-                                            L_UNIT_TO_UM(1.000,3.000), L_UNIT_TO_UM(2.500,3.000), L_UNIT_TO_UM(3.500,3.000), L_UNIT_TO_UM(4.500,3.000), L_UNIT_TO_UM(5.500,3.000), L_UNIT_TO_UM(6.500,3.000), L_UNIT_TO_UM(7.500,3.000), L_UNIT_TO_UM(8.500,3.000), L_UNIT_TO_UM(9.500,3.000), L_UNIT_TO_UM(10.500,3.000), L_UNIT_TO_UM(11.500,3.000), L_UNIT_TO_UM(12.500,3.000), L_UNIT_TO_UM(13.500,3.000), L_UNIT_TO_UM(14.500,3.000), 
-                                            L_UNIT_TO_UM(0.875,2.000), L_UNIT_TO_UM(2.250,2.000), L_UNIT_TO_UM(3.250,2.000), L_UNIT_TO_UM(4.250,2.000), L_UNIT_TO_UM(5.250,2.000), L_UNIT_TO_UM(6.250,2.000), L_UNIT_TO_UM(7.250,2.000), L_UNIT_TO_UM(8.250,2.000), L_UNIT_TO_UM(9.250,2.000), L_UNIT_TO_UM(10.250,2.000), L_UNIT_TO_UM(11.250,2.000), L_UNIT_TO_UM(12.250,2.000), L_UNIT_TO_UM(13.875,2.000), 
-                                            L_UNIT_TO_UM(0.750,1.000), L_UNIT_TO_UM(2.000,1.000), L_UNIT_TO_UM(3.000,1.000), L_UNIT_TO_UM(4.000,1.000), L_UNIT_TO_UM(5.000,1.000), L_UNIT_TO_UM(6.000,1.000), L_UNIT_TO_UM(7.000,1.000), L_UNIT_TO_UM(8.000,1.000), L_UNIT_TO_UM(9.000,1.000), L_UNIT_TO_UM(10.000,1.000), L_UNIT_TO_UM(11.000,1.000), L_UNIT_TO_UM(12.000,1.000), L_UNIT_TO_UM(13.000,1.000), L_UNIT_TO_UM(14.250,1.000), 
-                                            L_UNIT_TO_UM(0.500,0.000), L_UNIT_TO_UM(1.500,0.000), L_UNIT_TO_UM(2.500,0.000), L_UNIT_TO_UM(3.500,0.000), L_UNIT_TO_UM(4.500,0.000), L_UNIT_TO_UM(5.500,0.000), L_UNIT_TO_UM(6.500,0.000), L_UNIT_TO_UM(7.500,0.000), L_UNIT_TO_UM(8.500,0.000), L_UNIT_TO_UM(9.500,0.000),  L_UNIT_TO_UM(10.500,0.000), L_UNIT_TO_UM(11.500,0.000), L_UNIT_TO_UM(12.500,0.000), L_UNIT_TO_UM(14.000,0.000)};
-
-
-#define L(row,col) ((row)*16+(col))
 const uint16_t g_analog_map[ADVANCED_KEY_NUM] =
 {
-    0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17
+    0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16
 };
 
 static const uint16_t table[8192] = {
@@ -908,109 +895,29 @@ void keyboard_reboot()
     NVIC_SystemReset();
 }
 
-#define SEL_MASK  (A_Pin | B_Pin | C_Pin | D_Pin)
-void analog_channel_select(uint8_t x)
-{
-    //x=BCD_TO_GRAY(x);
-    uint32_t set_mask = 0;
-
-    if (x & 0x01) set_mask |= A_Pin;  // A
-    if (x & 0x02) set_mask |= B_Pin;  // B
-    if (x & 0x04) set_mask |= C_Pin;  // C
-    if (x & 0x08) set_mask |= D_Pin;  // D
-
-    uint32_t rst_mask = SEL_MASK & ~set_mask;
-
-    LL_GPIO_SetOutputPin(INHIBIT_GPIO_Port, INHIBIT_Pin);
-    A_GPIO_Port->BSRR = (set_mask) | (rst_mask << 16);
-    LL_GPIO_ResetOutputPin(INHIBIT_GPIO_Port, INHIBIT_Pin);
-}
-
 void keyboard_jump_to_bootloader(void)
 {
-    void JumpToBootloader(void);
-    JumpToBootloader();
+    
 }
 
-void keyboard_user_event_handler(KeyboardEvent event)
-{
-    if (event.event != KEYBOARD_EVENT_KEY_DOWN)
-    {
-        return;
-    }
-    keyboard_key_event_down_callback((Key*)event.key);
-    extern bool beep_switch;
-    extern bool em_switch;
-    switch (KEYCODE_GET_SUB(event.keycode))
-    {
-    case USER_BEEP:
-        beep_switch = !beep_switch;
-        break;
-    case USER_EM:
-        em_switch = !em_switch;
-        break;
-    case USER_SNAKE_LAUNCH:
-        if (!low_latency_mode)
-        {
-            snake_launch(&g_snake);
-        }
-        break;
-    case USER_SNAKE_QUIT:
-        snake_quit(&g_snake);
-        break;
-    case USER_SNAKE_PAUSE:
-        snake_pause(&g_snake);
-        break;
-    case USER_SNAKE_SPEED_UP:
-        snake_speed_up(&g_snake);
-        break;
-    case USER_SNAKE_SPEED_DOWN:
-        snake_speed_down(&g_snake);
-        break;
-    case USER_SNAKE_RESTART:
-        snake_restart(&g_snake);
-        break;
-    case USER_SNAKE_LEFT:
-    case USER_SNAKE_UP:
-    case USER_SNAKE_RIGHT:
-    case USER_SNAKE_DOWN:
-        snake_turn(&g_snake, KEYCODE_GET_SUB(event.keycode)&0x07);
-        break;
-    case USER_TOGGLE_LOW_LATENCY_MODE:
-        low_latency_mode = !low_latency_mode;
-        break;
-    default:
-        beep_switch = false;
-        em_switch = false;
-        low_latency_mode = false;
-        g_keyboard_config.debug = false;
-        g_keyboard_config.winlock = false;
-        g_keyboard_config.nkro = true;
-        break;
-    }
-}
-
-extern sfud_flash sfud_norflash0;
+//extern sfud_flash sfud_norflash0;
 
 int flash_read(uint32_t addr, uint32_t size, uint8_t *data)
 {
-    return sfud_read(&sfud_norflash0, addr, size, data);
+    //return sfud_read(&sfud_norflash0, addr, size, data);
+    return -1;
 }
 
 int flash_write(uint32_t addr, uint32_t size, const uint8_t *data)
 {
-    return sfud_write(&sfud_norflash0, addr, size, data);
+    //return sfud_write(&sfud_norflash0, addr, size, data);
+    return -1;
 }
 
 int flash_erase(uint32_t addr, uint32_t size)
 {
-    return sfud_erase(&sfud_norflash0, addr, size);
-}
-
-int led_set(uint16_t index, uint8_t r, uint8_t g, uint8_t b)
-{
-    ws2812_set(index, r, g, b);
-    return 0;
+    //return sfud_erase(&sfud_norflash0, addr, size);
+    return -1;
 }
 
 void gamepad_out_callback(GamepadOutReport* report)
@@ -1019,8 +926,7 @@ void gamepad_out_callback(GamepadOutReport* report)
     {
         if (report->rumble_l || report->rumble_r)
         {
-            extern uint32_t pulse_counter;
-            pulse_counter=KEYBOARD_TIME_TO_TICK(MAX(report->rumble_l, report->rumble_r));
+            
         }
     }
 }

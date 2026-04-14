@@ -53,6 +53,7 @@ file(GLOB_RECURSE MY_SOURCES
     "./CherryUSB/port/fsdev/usb_dc_fsdev.c"
     "./CherryUSB/port/fsdev/usb_glue_st.c"
     "./usb/*.c"
+    "./libamp_user/*.c"
     "./libamp/usb/template/cherryusb/usbd_user.c")
 
 # Add sources to executable

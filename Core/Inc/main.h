@@ -54,6 +54,7 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
+void DWT_Delay_us(volatile uint32_t au32_microseconds);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -77,6 +78,10 @@ void Error_Handler(void);
 #define KEY_4_GPIO_Port GPIOB
 #define KEY_RIGHT_Pin GPIO_PIN_6
 #define KEY_RIGHT_GPIO_Port GPIOB
+#define OLED_SDA_Pin GPIO_PIN_8
+#define OLED_SDA_GPIO_Port GPIOB
+#define OLED_SCL_Pin GPIO_PIN_9
+#define OLED_SCL_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

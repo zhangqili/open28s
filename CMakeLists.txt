@@ -41,6 +41,7 @@ add_subdirectory(cmake/stm32cubemx)
 # Add libamp sources
 set(LIBAMP_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/libamp_user)
 add_subdirectory(libamp)
+add_subdirectory(u8g2)
 
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
@@ -54,7 +55,10 @@ file(GLOB_RECURSE MY_SOURCES
     "./CherryUSB/port/fsdev/usb_glue_st.c"
     "./usb/*.c"
     "./libamp_user/*.c"
-    "./libamp/usb/template/cherryusb/usbd_user.c")
+    "./libamp/usb/template/cherryusb/usbd_user.c"
+    "./fezui/src/*.c"
+    "./fezui/ui/*.c"
+    "./snake/*.c")
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
@@ -73,6 +77,9 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ./CherryUSB/port/fsdev
     ./Drivers/CMSIS/Device/ST/STM32F3xx/Include
     ./libamp/usb/template/cherryusb
+    ./fezui/src
+    ./fezui/ui
+    ./snake
 )
 
 # Add project symbols (macros)
@@ -88,6 +95,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
     stm32cubemx
 
     # Add user defined libraries
+    u8g2
     libamp
     m
 )

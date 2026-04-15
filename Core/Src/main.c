@@ -500,10 +500,10 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, MUX_Pin|KEY_1_Pin|OLED_SDA_Pin|OLED_SCL_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PB10 KEY_DOWN_Pin KEY_5_Pin KEY_LEFT_Pin
-                           KEY_3_Pin KEY_4_Pin KEY_RIGHT_Pin */
-  GPIO_InitStruct.Pin = GPIO_PIN_10|KEY_DOWN_Pin|KEY_5_Pin|KEY_LEFT_Pin
-                          |KEY_3_Pin|KEY_4_Pin|KEY_RIGHT_Pin;
+  /*Configure GPIO pins : PB10 KEY_UP_Pin KEY_5_Pin KEY_RIGHT_Pin
+                           KEY_3_Pin KEY_4_Pin KEY_LEFT_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_10|KEY_UP_Pin|KEY_5_Pin|KEY_RIGHT_Pin
+                          |KEY_3_Pin|KEY_4_Pin|KEY_LEFT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -515,8 +515,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : KEY_UP_Pin KEY_2_Pin */
-  GPIO_InitStruct.Pin = KEY_UP_Pin|KEY_2_Pin;
+  /*Configure GPIO pins : KEY_DOWN_Pin KEY_2_Pin */
+  GPIO_InitStruct.Pin = KEY_DOWN_Pin|KEY_2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);

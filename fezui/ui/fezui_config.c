@@ -78,7 +78,7 @@ void fezui_init()
    //panelpage_init();
    //advancedsettingspage_init();
 
-    fezui_frame_init(&g_mainframe, &homepage, &frame_animation);
+    fezui_frame_init(&g_mainframe, &homepage, NULL);
     // Keybaord_SendReport_Enable=false;
     //fezui_frame_navigate(&g_mainframe, &calibrationpage);
     // fezui_frame_navigate(&g_mainframe, &oscilloscopepage);
@@ -89,26 +89,21 @@ void fezui_timer_handler()
 {
     fezui_frame_tick(&g_mainframe);
     //CONVERGE_TO(screensaver_countdown, (float)fezui.screensaver_countdown,0.02);
-    //fezui_notification_update(&fezui, &fezui_notification);
-    //fezui_cursor_move(&fezui, &g_fezui_cursor, &g_target_cursor);
-    //// fezui_animated_cursor_update(&animated_cursor);
-    //g_kps_history_max = loop_array_max(&g_kps_history);
-    //// fezui_save_counts();
-//
-    //uint8_t key_pressed_num = 0;
-    //for (uint8_t i = 0; i < ADVANCED_KEY_NUM; i++)
-    //{
-    //    key_pressed_num += g_keyboard_advanced_keys[i].key.state;
-    //}
-    //for (uint8_t i = 0; i < KEY_NUM; i++)
-    //{
-    //    key_pressed_num += g_keyboard_keys[i].state;
-    //}
-//
-    //if (g_kps_history_max || key_pressed_num)
-    //{
-    //    fezui.screensaver_countdown = fezui.screensaver_timeout;
-    //}
+    fezui_notification_update(&fezui, &fezui_notification);
+    fezui_cursor_move(&fezui, &g_fezui_cursor, &g_target_cursor);
+    // fezui_animated_cursor_update(&animated_cursor);
+    g_kps_history_max = loop_array_max(&g_kps_history);
+    // fezui_save_counts();
+
+    uint8_t key_pressed_num = 0;
+    for (uint8_t i = 0; i < TOTAL_KEY_NUM; i++)
+    {
+        key_pressed_num += keyboard_get_key(i)->state;
+    }
+    if (g_kps_history_max || key_pressed_num)
+    {
+        fezui.screensaver_countdown = fezui.screensaver_timeout;
+    }
 }
 
 void fezui_render_handler()
@@ -213,5 +208,6 @@ void fezui_reset()
     fezui.screensaver_timeout = 0;
     fezui.speed = 0.05;
     fezui.lang = LANG_EN;
+    fezui.show_fps = true;
     fezui_apply(&fezui);
 }

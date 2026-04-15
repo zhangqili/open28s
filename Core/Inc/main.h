@@ -72,10 +72,10 @@ void DWT_Delay_us(volatile uint32_t au32_microseconds);
 #define KEY_2_GPIO_Port GPIOA
 #define KEY_3_Pin GPIO_PIN_3
 #define KEY_3_GPIO_Port GPIOB
-#define KEY_1_Pin GPIO_PIN_4
-#define KEY_1_GPIO_Port GPIOB
-#define KEY_4_Pin GPIO_PIN_5
+#define KEY_4_Pin GPIO_PIN_4
 #define KEY_4_GPIO_Port GPIOB
+#define KEY_1_Pin GPIO_PIN_5
+#define KEY_1_GPIO_Port GPIOB
 #define KEY_LEFT_Pin GPIO_PIN_6
 #define KEY_LEFT_GPIO_Port GPIOB
 #define OLED_SDA_Pin GPIO_PIN_8

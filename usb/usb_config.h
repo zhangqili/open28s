@@ -317,4 +317,6 @@
 #define usb_ramaddr2phyaddr(addr) (addr)
 #endif
 
+#define CONFIG_USBDEV_SOF_ENABLE
+
 #endif

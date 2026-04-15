@@ -14,7 +14,7 @@ void fezui_draw_flowingwater(fezui_t *fezui_ptr, u8g2_uint_t x, u8g2_uint_t y, u
     for (uint8_t i = 0; i < w; i++)
     {
         if (bits[i/8]&BIT(i%8))
-            u8g2_DrawVLine(&(fezui_ptr->u8g2), x + i, y + 1, h - 2);
+            u8g2_DrawVLine(&(fezui_ptr->u8g2), x + i, y + 1, h - 1);
         if (((bool)(bits[i/8]&BIT(i%8))) ^ ((bool)(bits[(i+1)/8]&BIT((i+1)%8))))
             u8g2_DrawVLine(&(fezui_ptr->u8g2), x + i, y, h);
         

@@ -113,17 +113,18 @@ static void homepage_draw(void *page)
     //fezui.speed = 0.005;
     uint8_t color = u8g2_GetDrawColor(&(fezui.u8g2));
 
-    fezui_draw_flowingwater(&(fezui), MARGIN_LEFT, TILE1 + MARGIN_UP, HALF_WIDTH, TILE_WIDTH, (uint8_t *)g_bit_stream_datas[0]);
-    fezui_draw_flowingwater(&(fezui), MARGIN_LEFT, TILE2 + MARGIN_UP, HALF_WIDTH, TILE_WIDTH, (uint8_t *)g_bit_stream_datas[1]);
-    fezui_draw_flowingwater(&(fezui), MARGIN_LEFT, TILE3 + MARGIN_UP, HALF_WIDTH, TILE_WIDTH, (uint8_t *)g_bit_stream_datas[2]);
-    fezui_draw_flowingwater(&(fezui), MARGIN_LEFT, TILE4 + MARGIN_UP, HALF_WIDTH, TILE_WIDTH, (uint8_t *)g_bit_stream_datas[3]);
+    for (int i = 0; i < ADVANCED_KEY_NUM; i++)
+    {
+        fezui_draw_flowingwater(&(fezui), MARGIN_LEFT, i*2 + 1 + MARGIN_UP, HALF_WIDTH, 2, (uint8_t *)g_bit_stream_datas[i]);
+    }
+    
 
     draw_chart(&(fezui), 0, MARGIN_UP, CHART_WIDTH, CHART_HEIGHT, &g_kps_history, g_kps_history_max);
     u8g2_SetFont(&(fezui.u8g2), u8g2_font_micro_tr);
     u8g2_DrawUTF8(&(fezui.u8g2), 0, MARGIN_UP - 1, "KPS:");
     u8g2_DrawUTF8(&(fezui.u8g2), 32, MARGIN_UP - 1, "MAX:");
     u8g2_DrawUTF8(&(fezui.u8g2), 95, MARGIN_UP - 1, "FPS:");
-
+    
     u8g2_SetFont(&(fezui.u8g2), fez_font_6x10_m);
 
     fezui_draw_rolling_number(&fezui, 2, 63, &key1_num);

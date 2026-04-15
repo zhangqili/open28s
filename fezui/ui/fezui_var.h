@@ -18,6 +18,7 @@ extern fezui_t fezui;
 extern u8log_t g_u8log;
 
 extern uint32_t g_fezui_fps;
+extern uint32_t g_fezui_fps1;
 extern uint8_t g_kps_history_max;
 extern char g_fpsstr[8];
 extern uint32_t g_fezui_debug;

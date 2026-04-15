@@ -26,6 +26,7 @@
 #include "usbd_user.h"
 #include "fezui.h"
 #include "fezui_var.h"
+#include "record.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,6 +50,7 @@
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
+TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 
 /* USER CODE BEGIN PV */
@@ -61,6 +63,7 @@ static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -183,7 +186,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
   ringbuf_push(&g_adc_ringbufs[9+6], adc_buf[7]/8);
   ringbuf_push(&g_adc_ringbufs[9+7], adc_buf[8]/8);
 }
-uint16_t keys;
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
 {
@@ -191,6 +193,51 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
   {
     keyboard_task();
   }
+  if (htim->Instance == TIM3)
+  {
+    fezui_timer_handler();
+    record_bit_stream_timer();
+    record_kps_timer();
+    static uint32_t next_tick;
+    if (next_tick < g_keyboard_tick)
+    {
+      next_tick+=1000;
+      sprintf(g_fpsstr, "%ld", g_fezui_fps);
+      g_fezui_fps = 0;
+      record_kps_history_timer();
+      g_fezui_run_time++;
+    }
+  }
+}
+
+
+void usbd_event_handler_user(uint8_t busid, uint8_t event)
+{
+    switch (event)
+    {
+    case USBD_EVENT_RESET:
+        break;
+    case USBD_EVENT_CONNECTED:
+        break;
+    case USBD_EVENT_DISCONNECTED:
+        break;
+    case USBD_EVENT_RESUME:
+        break;
+    case USBD_EVENT_SUSPEND:
+        break;
+    case USBD_EVENT_CONFIGURED:
+        break;
+    case USBD_EVENT_SET_REMOTE_WAKEUP:
+        break;
+    case USBD_EVENT_CLR_REMOTE_WAKEUP:
+        break;
+    case USBD_EVENT_SOF:
+        HAL_TIM_Base_Stop_IT(&htim4);
+        HAL_TIM_Base_Start_IT(&htim4);
+        break;
+    default:
+        break;
+    }
 }
 /* USER CODE END 0 */
 
@@ -227,23 +274,28 @@ int main(void)
   MX_DMA_Init();
   MX_ADC1_Init();
   MX_TIM4_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   HAL_ADCEx_Calibration_Start(&hadc1);
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_buffer, DMA_LENGTH*2);
   //HAL_GPIO_WritePin(KEY_BUS_GPIO_Port, KEY_BUS_Pin, GPIO_PIN_SET);
 
+  for (int i = 0; i < ADVANCED_KEY_NUM; i++)
+  {
+    g_keyboard_advanced_keys[i].config.upper_bound = 2048;
+  }
+  
   fezui_init();
+  HAL_TIM_Base_Start_IT(&htim3);
   keyboard_init();
   usb_init(0, USB_BASE);
   analog_calibrate();
-  HAL_TIM_Base_Start_IT(&htim4);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   { 
-    fezui_timer_handler();
     fezui_render_handler();
     keyboard_process();
     /* USER CODE END WHILE */
@@ -420,6 +472,51 @@ static void MX_ADC1_Init(void)
 }
 
 /**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 120-1;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 10000-1;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
+
+/**
   * @brief TIM4 Initialization Function
   * @param None
   * @retval None
@@ -438,17 +535,21 @@ static void MX_TIM4_Init(void)
 
   /* USER CODE END TIM4_Init 1 */
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 7200-1;
+  htim4.Init.Prescaler = 3600-1;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim4.Init.Period = 10-1;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
   {
     Error_Handler();
   }
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
   if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_OnePulse_Init(&htim4, TIM_OPMODE_SINGLE) != HAL_OK)
   {
     Error_Handler();
   }
@@ -498,18 +599,18 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, MUX_Pin|KEY_1_Pin|OLED_SDA_Pin|OLED_SCL_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, MUX_Pin|KEY_4_Pin|OLED_SDA_Pin|OLED_SCL_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PB10 KEY_UP_Pin KEY_5_Pin KEY_RIGHT_Pin
-                           KEY_3_Pin KEY_4_Pin KEY_LEFT_Pin */
+                           KEY_3_Pin KEY_1_Pin KEY_LEFT_Pin */
   GPIO_InitStruct.Pin = GPIO_PIN_10|KEY_UP_Pin|KEY_5_Pin|KEY_RIGHT_Pin
-                          |KEY_3_Pin|KEY_4_Pin|KEY_LEFT_Pin;
+                          |KEY_3_Pin|KEY_1_Pin|KEY_LEFT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : MUX_Pin KEY_1_Pin OLED_SDA_Pin OLED_SCL_Pin */
-  GPIO_InitStruct.Pin = MUX_Pin|KEY_1_Pin|OLED_SDA_Pin|OLED_SCL_Pin;
+  /*Configure GPIO pins : MUX_Pin KEY_4_Pin OLED_SDA_Pin OLED_SCL_Pin */
+  GPIO_InitStruct.Pin = MUX_Pin|KEY_4_Pin|OLED_SDA_Pin|OLED_SCL_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

@@ -36,7 +36,7 @@
 #define DEFAULT_LOWER_DEADZONE      0.2
 #define DEFAULT_ACTIVATION_VALUE    0.5
 #define DEFAULT_DEACTIVATION_VALUE  0.49
-#define DEFAULT_ESTIMATED_RANGE     500
+#define DEFAULT_ESTIMATED_RANGE     128
 
 /**********/
 /* Analog */
@@ -119,7 +119,7 @@
 /* Record */
 /**********/
 #define STATIC_RECORD
-#define ANALOG_HISTORY_ENABLE
+//#define ANALOG_HISTORY_ENABLE
 #define KPS_ENABLE
 #define KPS_HISTORY_ENABLE
 #define BIT_STREAM_ENABLE
@@ -129,7 +129,7 @@
 #define BIT_STREAM_LENGTH       128
 #define ANALOG_HISTORY_LENGTH   129
 #define RECORD_MAX_KEY_NUM      8
-#define KPS_REFRESH_RATE        144
+#define KPS_REFRESH_RATE        30
 
 /*******/
 /* USB */

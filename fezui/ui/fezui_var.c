@@ -12,6 +12,7 @@ fezui_t fezui={.speed=0.1};
 
 uint8_t g_kps_history_max;
 uint32_t g_fezui_fps;
+uint32_t g_fezui_fps1;
 uint32_t g_fezui_debug;
 uint32_t g_fezui_run_time;
 

@@ -12,6 +12,7 @@
 #define LAYER_NUM               3
 #define ADVANCED_KEY_NUM        17
 #define KEY_NUM                 9
+#define DYNAMIC_KEY_NUM         8
 #define CONTINUOUS_DEBUG
 #define DEBUG_INTERVAL 0
 #define DYNAMICKEY_ENABLE
@@ -47,16 +48,17 @@
 /***********/
 /* Storage */
 /***********/
-//#define STORAGE_ENABLE
-//#define LFS_ENABLE
-//#define LFS_READ_SIZE       16
-//#define LFS_PROG_SIZE       16
-//#define LFS_BLOCK_SIZE      4096
-//#define LFS_BLOCK_COUNT     4096
-//#define LFS_CACHE_SIZE      16
-//#define LFS_LOOKAHEAD_SIZE  16
-//#define LFS_BLOCK_CYCLES    500
-//#define LFS_BUFFER_SIZE     16
+#define STORAGE_ENABLE
+#define LFS_ENABLE
+#define STORAGE_PROFILE_FILE_NUM 1
+#define LFS_READ_SIZE       16
+#define LFS_PROG_SIZE       16
+#define LFS_BLOCK_SIZE      1024
+#define LFS_BLOCK_COUNT     4
+#define LFS_CACHE_SIZE      16
+#define LFS_LOOKAHEAD_SIZE  16
+#define LFS_BLOCK_CYCLES    500
+#define LFS_BUFFER_SIZE     16
 
 /*******/
 /* RGB */

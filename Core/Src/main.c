@@ -195,6 +195,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
   }
   if (htim->Instance == TIM3)
   {
+    /*
     fezui_timer_handler();
     record_bit_stream_timer();
     record_kps_timer();
@@ -207,6 +208,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim)
       record_kps_history_timer();
       g_fezui_run_time++;
     }
+    */
   }
 }
 
@@ -285,7 +287,7 @@ int main(void)
     g_keyboard_advanced_keys[i].config.upper_bound = 2048;
   }
   
-  fezui_init();
+  //fezui_init();
   HAL_TIM_Base_Start_IT(&htim3);
   keyboard_init();
   usb_init(0, USB_BASE);
@@ -296,7 +298,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   { 
-    fezui_render_handler();
+    //fezui_render_handler();
     keyboard_process();
     /* USER CODE END WHILE */
 

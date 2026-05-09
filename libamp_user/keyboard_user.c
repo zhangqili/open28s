@@ -915,33 +915,50 @@ void keyboard_jump_to_bootloader(void)
     
 }
 
-//extern sfud_flash sfud_norflash0;
+#define LFS_FLASH_BASE_ADDR  0x0800F000
+#define FLASH_PAGE_SIZE      1024
 
 int flash_read(uint32_t addr, uint32_t size, uint8_t *data)
 {
-    //return sfud_read(&sfud_norflash0, addr, size, data);
-    return -1;
+    uint32_t physical_addr = LFS_FLASH_BASE_ADDR + addr;
+    memcpy(data, (void *)physical_addr, size);
+    return 0;
 }
 
 int flash_write(uint32_t addr, uint32_t size, const uint8_t *data)
 {
-    //return sfud_write(&sfud_norflash0, addr, size, data);
-    return -1;
+    uint32_t physical_addr = LFS_FLASH_BASE_ADDR + addr;
+    HAL_StatusTypeDef status = HAL_OK;
+    HAL_FLASH_Unlock();
+    for (uint32_t i = 0; i < size; i += 4)
+    {
+        uint32_t word_data;
+        memcpy(&word_data, &data[i], 4);
+        status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, physical_addr + i, word_data);
+        if (status != HAL_OK)
+        {
+            break;
+        }
+    }
+    HAL_FLASH_Lock();
+    return (status == HAL_OK) ? 0 : -5;
 }
 
 int flash_erase(uint32_t addr, uint32_t size)
 {
-    //return sfud_erase(&sfud_norflash0, addr, size);
-    return -1;
-}
-
-void gamepad_out_callback(GamepadOutReport* report)
-{
-    if (report->report_id == 0)
-    {
-        if (report->rumble_l || report->rumble_r)
-        {
-            
-        }
+    uint32_t physical_addr = LFS_FLASH_BASE_ADDR + addr;
+    HAL_StatusTypeDef status = HAL_OK;
+    FLASH_EraseInitTypeDef EraseInitStruct;
+    uint32_t PageError = 0;
+    uint32_t nb_pages = size / FLASH_PAGE_SIZE;
+    if (size % FLASH_PAGE_SIZE != 0) {
+        nb_pages++;
     }
+    EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+    EraseInitStruct.PageAddress = physical_addr;
+    EraseInitStruct.NbPages     = nb_pages;
+    HAL_FLASH_Unlock();
+    status = HAL_FLASHEx_Erase(&EraseInitStruct, &PageError);
+    HAL_FLASH_Lock();
+    return (status == HAL_OK) ? 0 : -5;
 }

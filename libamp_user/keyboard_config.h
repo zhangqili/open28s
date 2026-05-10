@@ -24,7 +24,7 @@
 #define DEBOUNCE_PRESS_EAGER    1
 #define DEBOUNCE_RELEASE        0
 #define DEBOUNCE_RELEASE_EAGER  1
-#define LUT_LENGTH              8192
+#define LUT_LENGTH              2048
 
 /********************/
 /* Keyboard Default */
@@ -52,10 +52,10 @@
 #define LFS_ENABLE
 #define STORAGE_PROFILE_FILE_NUM 1
 #define LFS_READ_SIZE       16
-#define LFS_PROG_SIZE       16
+#define LFS_PROG_SIZE       256
 #define LFS_BLOCK_SIZE      1024
-#define LFS_BLOCK_COUNT     4
-#define LFS_CACHE_SIZE      16
+#define LFS_BLOCK_COUNT     10
+#define LFS_CACHE_SIZE      256
 #define LFS_LOOKAHEAD_SIZE  16
 #define LFS_BLOCK_CYCLES    500
 #define LFS_BUFFER_SIZE     16
